@@ -1,1 +1,19 @@
-node_modules
+# dependencies
+/node_modules
+/.pnpm-store
+
+# next.js build output
+/.next/
+/out/
+
+# production & local env files
+.env*.local
+.env
+!.env.example
+
+# debug & OS logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+*.pem
