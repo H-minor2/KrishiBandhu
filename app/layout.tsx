@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Citizen Services Portal',
-  description: 'Official Government Portal',
+  title: 'Krishi Bandhu',
+  description: 'Official Government Portal to help farmers',
 }
 
 export default function RootLayout({
