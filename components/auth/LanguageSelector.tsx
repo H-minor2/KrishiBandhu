@@ -38,7 +38,7 @@ export default function LanguageSelector({
       <p className="text-sm text-gray-700 mb-4">
         Choose your preferred language to proceed with registration and crop data submission.
       </p>
-      
+
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {SUPPORTED_LANGUAGES.map((lang) => {
           const isSelected = selectedLanguage === lang.code;
@@ -47,11 +47,10 @@ export default function LanguageSelector({
               key={lang.code}
               type="button"
               onClick={() => onSelectLanguage(lang.code)}
-              className={`p-3 border font-bold text-left cursor-pointer transition-colors ${
-                isSelected
+              className={`p-3 border font-bold text-left cursor-pointer transition-colors ${isSelected
                   ? 'bg-[#003366] text-white border-black ring-2 ring-yellow-300'
                   : 'bg-white text-black border-black hover:bg-slate-100'
-              }`}
+                }`}
             >
               <div className="text-base">{lang.nativeName}</div>
               <div className={`text-xs ${isSelected ? 'text-gray-200' : 'text-gray-500'}`}>

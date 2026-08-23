@@ -65,11 +65,10 @@ export default function CropSelector({
                 key={crop}
                 type="button"
                 onClick={() => onChange({ crop_name: crop })}
-                className={`p-3 border text-sm font-bold text-left flex items-center justify-between cursor-pointer transition-all ${
-                  isSelected
+                className={`p-3 border text-sm font-bold text-left flex items-center justify-between cursor-pointer transition-all ${isSelected
                     ? 'bg-[#003366] text-white border-black ring-2 ring-yellow-300 shadow-md'
                     : 'bg-white text-black border-black hover:bg-slate-200'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{display.icon}</span>

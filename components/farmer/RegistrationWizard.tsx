@@ -174,13 +174,12 @@ export default function RegistrationWizard() {
               onClick={() => {
                 if (isDone || step.num < currentStep) setCurrentStep(step.num);
               }}
-              className={`px-3 py-2 text-xs md:text-sm font-bold border transition-colors cursor-pointer ${
-                isActive
+              className={`px-3 py-2 text-xs md:text-sm font-bold border transition-colors cursor-pointer ${isActive
                   ? 'bg-[#003366] text-white border-black ring-2 ring-yellow-300'
                   : isDone
-                  ? 'bg-emerald-700 text-white border-black'
-                  : 'bg-white text-gray-600 border-gray-300'
-              }`}
+                    ? 'bg-emerald-700 text-white border-black'
+                    : 'bg-white text-gray-600 border-gray-300'
+                }`}
             >
               {step.label}
             </button>

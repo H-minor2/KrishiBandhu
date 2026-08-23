@@ -156,17 +156,40 @@ export async function registerFarmerAndCrop(data: FullRegistrationState): Promis
 export async function loginFarmer(mobileNumber: string, password?: string): Promise<{ success: boolean; profile?: FarmerProfile; error?: string }> {
   try {
     if (isSupabaseConfigured && supabase) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('mobile_number', mobileNumber)
-        .maybeSingle();
+      const dummyEmail = `${mobileNumber.replace(/\D/g, '')}@krishibandhu.in`;
+      const userPassword = password || `KB#${mobileNumber.slice(-4)}!2026`;
+
+      let authUserId: string | null = null;
+
+      try {
+        const { data: authData } = await supabase.auth.signInWithPassword({
+          email: dummyEmail,
+          password: userPassword
+        });
+
+        if (authData?.user) {
+          authUserId = authData.user.id;
+        }
+      } catch (authErr) {
+        console.warn('Supabase Auth signIn failed, attempting direct profile lookup:', authErr);
+      }
+
+      let profileQuery = supabase.from('profiles').select('*');
+      if (authUserId) {
+        profileQuery = profileQuery.eq('id', authUserId);
+      } else {
+        profileQuery = profileQuery.eq('mobile_number', mobileNumber);
+      }
+
+      const { data: profile } = await profileQuery.maybeSingle();
 
       if (profile) {
         if (typeof window !== 'undefined') {
           localStorage.setItem(MOCK_STORAGE_KEY_PROFILE, JSON.stringify(profile));
         }
         return { success: true, profile };
+      } else {
+        return { success: false, error: 'No registered farmer record found for this mobile number.' };
       }
     }
 
@@ -188,49 +211,108 @@ export async function loginFarmer(mobileNumber: string, password?: string): Prom
       location_address: 'Ludhiana, Punjab',
       created_at: new Date().toISOString()
     };
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(MOCK_STORAGE_KEY_PROFILE, JSON.stringify(mockProfile));
+    }
     return { success: true, profile: mockProfile };
   } catch (err: any) {
     return { success: false, error: err.message || 'Login failed.' };
   }
 }
 
-export async function fetchFarmerDashboardData(): Promise<{ profile: FarmerProfile | null; crops: FarmerCropData[] }> {
+export interface DashboardFetchResult {
+  profile: FarmerProfile | null;
+  crops: FarmerCropData[];
+  authenticated: boolean;
+  error?: string | null;
+}
+
+export async function fetchFarmerDashboardData(): Promise<DashboardFetchResult> {
   try {
     if (isSupabaseConfigured && supabase) {
-      const local = getStoredFarmerData();
-      const profileId = local.profile?.id;
-      const mobileNumber = local.profile?.mobile_number;
+      // 1. Check authenticated user from Supabase Auth session
+      const { data: { session } } = await supabase.auth.getSession();
 
-      let query = supabase.from('profiles').select('*');
-      if (profileId) {
-        query = query.eq('id', profileId);
-      } else if (mobileNumber) {
-        query = query.eq('mobile_number', mobileNumber);
-      } else {
-        query = query.order('created_at', { ascending: false }).limit(1);
+      let userId: string | null = session?.user?.id || null;
+      let mobileNumber: string | null = session?.user?.user_metadata?.mobile_number || null;
+
+      // Fallback to client storage if no active session in client
+      if (!userId) {
+        const local = getStoredFarmerData();
+        userId = local.profile?.id || null;
+        mobileNumber = local.profile?.mobile_number || null;
       }
 
-      const { data: profile } = await query.maybeSingle();
+      if (!userId && !mobileNumber) {
+        return { profile: null, crops: [], authenticated: false };
+      }
+
+      let profileQuery = supabase.from('profiles').select('*');
+      if (userId) {
+        profileQuery = profileQuery.eq('id', userId);
+      } else if (mobileNumber) {
+        profileQuery = profileQuery.eq('mobile_number', mobileNumber);
+      }
+
+      const { data: profile, error: profileError } = await profileQuery.maybeSingle();
+
+      if (profileError) {
+        console.error('Error fetching farmer profile from Supabase profiles table:', profileError);
+        throw profileError;
+      }
 
       if (profile) {
-        const { data: crops } = await supabase
+        const { data: crops, error: cropsError } = await supabase
           .from('farmer_crops')
           .select('*')
           .eq('user_id', profile.id)
           .order('created_at', { ascending: false });
 
+        if (cropsError) {
+          console.error('Error fetching farmer crops from Supabase farmer_crops table:', cropsError);
+          throw cropsError;
+        }
+
         if (typeof window !== 'undefined') {
           localStorage.setItem(MOCK_STORAGE_KEY_PROFILE, JSON.stringify(profile));
           if (crops) localStorage.setItem(MOCK_STORAGE_KEY_CROPS, JSON.stringify(crops));
         }
-        return { profile, crops: crops || [] };
+
+        return { profile, crops: crops || [], authenticated: true };
       }
     }
-  } catch (err) {
-    console.warn('Supabase fetch error, using local fallback:', err);
+  } catch (err: any) {
+    console.error('Error fetching farmer dashboard data from Supabase:', err);
+    return {
+      profile: null,
+      crops: [],
+      authenticated: true,
+      error: err.message || "We couldn't load your farm information."
+    };
   }
 
-  return getStoredFarmerData();
+  const local = getStoredFarmerData();
+  if (local.profile) {
+    return { profile: local.profile, crops: local.crops, authenticated: true };
+  }
+
+  return { profile: null, crops: [], authenticated: false };
+}
+
+export async function logoutFarmer(): Promise<void> {
+  try {
+    if (isSupabaseConfigured && supabase) {
+      await supabase.auth.signOut();
+    }
+  } catch (err) {
+    console.warn('Error signing out of Supabase:', err);
+  } finally {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(MOCK_STORAGE_KEY_PROFILE);
+      localStorage.removeItem(MOCK_STORAGE_KEY_CROPS);
+      window.location.href = '/login';
+    }
+  }
 }
 
 export async function addNewCropToSupabase(cropData: Partial<FarmerCropData>): Promise<{ success: boolean; crop?: FarmerCropData; error?: string }> {

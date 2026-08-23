@@ -78,7 +78,7 @@ export default function AgriDetailsInput({
         <label htmlFor="soil-type-select" className="font-bold text-black text-sm">
           🧱 {t('soilTypeLabel')} *
         </label>
-        
+
         {/* Clickable Option Cards for Soil Type */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
           {SOIL_TYPES.map((st) => {
@@ -88,11 +88,10 @@ export default function AgriDetailsInput({
                 key={st}
                 type="button"
                 onClick={() => onChange({ soil_type: st })}
-                className={`p-3 border text-sm font-semibold text-left flex items-center justify-between cursor-pointer transition-all ${
-                  isSelected
+                className={`p-3 border text-sm font-semibold text-left flex items-center justify-between cursor-pointer transition-all ${isSelected
                     ? 'bg-[#003366] text-white border-black ring-2 ring-yellow-300 shadow-sm'
                     : 'bg-white text-black border-black hover:bg-slate-100'
-                }`}
+                  }`}
               >
                 <span>{st} Soil</span>
                 <span className="text-xs">{isSelected ? '✓' : ''}</span>
@@ -148,11 +147,10 @@ export default function AgriDetailsInput({
             return (
               <label
                 key={type}
-                className={`p-3 border text-sm font-semibold flex items-center gap-2 cursor-pointer transition-colors ${
-                  isSelected
+                className={`p-3 border text-sm font-semibold flex items-center gap-2 cursor-pointer transition-colors ${isSelected
                     ? 'bg-[#003366] text-white border-black ring-2 ring-yellow-300'
                     : 'bg-white text-black border-black hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 <input
                   type="radio"

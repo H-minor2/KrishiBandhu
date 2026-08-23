@@ -20,7 +20,7 @@ export default function LandingPage() {
           <h1 className="m-0 text-xl font-bold tracking-tight">{t('appTitle')}</h1>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <select 
+          <select
             value={lang}
             onChange={(e) => setLang(e.target.value)}
             className="bg-white text-black border border-black px-2 py-1.5 rounded-none cursor-pointer text-sm font-bold shadow-none outline-none focus:ring-2 focus:ring-yellow-300"
@@ -36,7 +36,7 @@ export default function LandingPage() {
             <button type="button" onClick={() => setFontSize('text-sm')} className="bg-white text-black border border-black border-l-0 px-3 py-1.5 font-bold cursor-pointer rounded-none outline-none focus:ring-2 focus:ring-yellow-300">A-</button>
           </div>
           <button type="button" onClick={() => setIsHighContrast(!isHighContrast)} className="bg-yellow-300 text-black border border-black px-3 py-1.5 font-bold cursor-pointer rounded-none outline-none focus:ring-2 focus:ring-white hover:bg-yellow-400">HC</button>
-          
+
           <Link href="/signin" className="bg-white text-[#003366] border border-black px-3 py-1.5 font-bold cursor-pointer rounded-none outline-none hover:bg-gray-100 no-underline">
             {t('signInButton')}
           </Link>

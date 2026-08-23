@@ -46,7 +46,7 @@ export default function LocationSelector({
       const loc = await fetchLocationViaGeocoding();
       setLocating(false);
       setGeoMsg('📍 Location successfully updated!');
-      
+
       const updates: any = {
         latitude: loc.latitude,
         longitude: loc.longitude,
@@ -73,7 +73,7 @@ export default function LocationSelector({
         <h3 className="text-lg font-bold text-[#003366]">
           📍 {t('locationTitle')}
         </h3>
-        
+
         {/* Toggle Manual / Cascade mode */}
         <label className="flex items-center gap-2 cursor-pointer text-sm font-semibold">
           <input
