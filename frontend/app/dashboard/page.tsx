@@ -9,6 +9,7 @@ import LandDetailsInput from '../../components/farmer/LandDetailsInput';
 import AgriDetailsInput from '../../components/farmer/AgriDetailsInput';
 import FinancialDetailsInput from '../../components/farmer/FinancialDetailsInput';
 import '../globals.css';
+import { Wheat, Plus, CircleUserRound, Phone, Pin, Hourglass, CheckCheck } from 'lucide-react';
 
 export default function DashboardPage() {
   const [fontSize, setFontSize] = useState('text-base');
@@ -85,12 +86,12 @@ export default function DashboardPage() {
             <button type="button" onClick={() => setFontSize('text-sm')} className="bg-white text-black border border-black border-l-0 px-3 py-1.5 font-bold cursor-pointer rounded-none outline-none hover:bg-gray-200">A-</button>
           </div>
 
-          <Link href="/signup" className="bg-white text-[#003366] border border-black px-3 py-1.5 font-bold flex items-center gap-2 cursor-pointer rounded-none outline-none hover:bg-gray-200 no-underline text-sm">
-            ➕ Register New Farmer Profile
+          <Link href="/signup" className="bg-white text-[#003366] border border-black px-3 py-1.5 font-bold flex items-center gap-2 cursor-pointer outline-none hover:bg-gray-200 no-underline text-sm rounded-sm">
+            <u>Register New Farmer Profile</u>
           </Link>
 
-          <button onClick={() => window.location.href='/'} className="bg-white text-[#003366] border border-black px-3 py-1.5 font-bold flex items-center gap-2 cursor-pointer rounded-none outline-none hover:bg-gray-200 text-sm">
-            🚪 Log Out
+          <button onClick={() => window.location.href='/'} className="bg-white text-[#003366] border border-black px-3 py-1.5 font-bold flex items-center gap-2 cursor-pointer rounded-sm outline-none hover:bg-gray-200 text-sm">
+            <u>Log Out</u>
           </button>
         </div>
       </nav>
@@ -100,14 +101,17 @@ export default function DashboardPage() {
         {/* Farmer Header Card */}
         <div className="bg-white border-2 border-black p-6 rounded-none flex flex-wrap justify-between items-center gap-4">
           <div>
-            <span className="bg-[#003366] text-white text-xs font-bold px-2.5 py-1">
-              SUPABASE REGISTERED FARMER
+            <span className="bg-[#003366] text-white text-xs font-bold px-2.5 py-1 flex items-center w-max">
+              <CheckCheck className='w-5 h-5 text-white mr-2'/>
+              REGISTERED FARMER
             </span>
-            <h2 className="text-2xl font-bold text-black mt-2">
-              👤 {profile?.full_name || (loading ? 'Loading Profile...' : 'Registered Farmer')}
+            <h2 className="text-2xl font-bold text-black mt-2 flex items-center gap-2">
+              <CircleUserRound className="w-5 h-5 text-gray-700"/>
+              {profile?.full_name || (loading ? 'Loading Profile...' : 'Registered Farmer')}
             </h2>
-            <p className="text-sm text-gray-700 mt-1">
-              📱 <strong>Mobile:</strong> {profile?.mobile_number || 'N/A'} | 📍 <strong>Location / District:</strong> {profile?.location_address || (profile?.district ? `${profile.district}, ${profile.state}` : 'N/A')}
+            <p className="text-sm text-gray-700 mt-1 flex items-center gap-1">
+              <Phone className="w-4.5 h-4.5 mr-1.5"/> 
+              <strong>Mobile:</strong> {profile?.mobile_number || 'N/A'}  <strong className='flex items-center'> <Pin className='w-4.5 h-4.5 mx-1.5'/> Location / District:</strong> {profile?.location_address || (profile?.district ? `${profile.district}, ${profile.state}` : 'N/A')}
             </p>
           </div>
 
@@ -115,21 +119,22 @@ export default function DashboardPage() {
             onClick={() => setIsModalOpen(true)}
             className="bg-[#003366] text-white font-bold border border-black px-5 py-3 rounded-none hover:bg-blue-800 flex items-center gap-2 cursor-pointer"
           >
-            ➕ Register New Crop Entry
+            <Plus className="w-5 h-5"/>
+            Register New Crop Entry
           </button>
         </div>
 
         {/* Crop Records Section */}
         <h3 className="text-xl font-bold text-[#003366] border-b-2 border-black pb-2 flex justify-between items-center">
-          <span>🌾 Recorded Farmer & Crop Information</span>
+          <span>Recorded Farmer & Crop Information</span>
           <span className="text-xs bg-[#003366] text-white px-2.5 py-1 font-bold">
             {crops.length} Records Saved in Postgres
           </span>
         </h3>
 
         {loading ? (
-          <div className="w-full border border-black p-8 text-center bg-white font-bold text-gray-600">
-            ⌛ Syncing records with Supabase Postgres...
+          <div className="w-full border border-black p-8 text-center bg-white font-bold text-gray-600 flex items-center">
+            <Hourglass className="w-5 h-5"/> Syncing records with Supabase Postgres...
           </div>
         ) : crops.length === 0 ? (
           <div className="w-full border-2 border-dashed border-gray-400 p-10 text-center bg-white">
@@ -137,7 +142,7 @@ export default function DashboardPage() {
             <p className="text-sm text-gray-500 mt-1">Click "Register New Crop Entry" to submit crop & loan details.</p>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="mt-4 bg-[#003366] text-white font-bold border border-black px-5 py-2.5 rounded-none hover:bg-blue-800"
+              className="mt-4 bg-[#003366] text-white font-bold border border-black px-5 py-2.5 rounded-xl hover:bg-blue-800"
             >
               + Add Crop Record
             </button>
@@ -145,12 +150,13 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {crops.map((crop, idx) => (
-              <div key={crop.id || idx} className="bg-white border-2 border-black p-6 rounded-none space-y-3 relative">
+              <div key={crop.id || idx} className="bg-white border-2 border-black p-6 rounded-xl space-y-3 relative">
                 <div className="flex justify-between items-start border-b border-black pb-2">
                   <div>
                     <span className="text-xs font-bold text-[#003366] uppercase tracking-wider">CROP RECORD #{idx + 1}</span>
-                    <h4 className="text-xl font-bold text-black">
-                      🌾 {crop.crop_name === 'Other' ? crop.custom_crop_name : crop.crop_name}
+                    <h4 className="text-xl font-bold text-black flex items-center gap-2">
+                        <Wheat className="w-5 h-5 text-amber-600" />
+                        {crop.crop_name === 'Other' ? crop.custom_crop_name : crop.crop_name}
                     </h4>
                   </div>
                   <span className="bg-emerald-100 text-emerald-900 border border-emerald-600 px-2.5 py-1 text-xs font-bold">
@@ -189,6 +195,13 @@ export default function DashboardPage() {
                   <span>Approximate Loan Amount:</span>
                   <span className="text-base text-emerald-800">₹{crop.loan_amount?.toLocaleString('en-IN') || 0}</span>
                 </div>
+
+                <Link 
+                  href={`/chat/${crop.id || idx}`}
+                  className="mt-4 block w-full bg-[#003366] text-white font-bold border border-black px-4 py-3 rounded-xl hover:bg-blue-800 text-center flex items-center justify-center gap-2"
+                >
+                  💬 Consult Krishi AI
+                </Link>
               </div>
             ))}
           </div>
@@ -198,10 +211,11 @@ export default function DashboardPage() {
       {/* Modal for adding a new crop entry */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white border-2 border-black p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-none">
+          <div className="bg-white border-2 border-black p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl">
             <div className="flex justify-between items-center border-b border-black pb-3 mb-4">
-              <h3 className="text-xl font-bold text-[#003366]">
-                ➕ Add Farmer / Crop Entry
+              <h3 className="text-xl flex items-center font-bold text-[#003366]">
+                <Plus className='w-5 h-5'/>
+                Add Farmer / Crop Entry
               </h3>
               <button
                 type="button"
@@ -260,14 +274,14 @@ export default function DashboardPage() {
               <div className="flex gap-4 pt-4 border-t border-black">
                 <button
                   type="submit"
-                  className="flex-1 bg-[#003366] text-white font-bold border border-black p-3 rounded-none hover:bg-blue-800 cursor-pointer"
+                  className="flex-1 bg-[#003366] text-white font-bold border border-black p-3 rounded-xl hover:bg-blue-800 cursor-pointer"
                 >
                   Save Crop Entry to Supabase
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 bg-white text-black font-bold border border-black p-3 rounded-none hover:bg-gray-100 cursor-pointer"
+                  className="flex-1 bg-white text-black font-bold border border-black p-3 rounded-xl hover:bg-gray-100 cursor-pointer"
                 >
                   Cancel
                 </button>
