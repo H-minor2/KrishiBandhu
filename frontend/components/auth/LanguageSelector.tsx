@@ -2,18 +2,16 @@
 
 import React from 'react';
 import { SUPPORTED_LANGUAGES } from '../../lib/constants/languages';
+import { useLanguage } from '../../lib/context/LanguageContext';
 
 interface LanguageSelectorProps {
-  selectedLanguage: string;
-  onSelectLanguage: (code: string) => void;
   showCardLayout?: boolean;
 }
 
 export default function LanguageSelector({
-  selectedLanguage,
-  onSelectLanguage,
   showCardLayout = true
-}: LanguageSelectorProps) {
+}: LanguageSelectorProps = {}) {
+  const { lang: selectedLanguage, setLang: onSelectLanguage, t } = useLanguage();
   if (!showCardLayout) {
     return (
       <select

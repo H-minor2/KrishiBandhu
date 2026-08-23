@@ -4,16 +4,15 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { loginFarmer, isSupabaseConfigured } from '../../lib/supabase/client';
 import { getTranslation } from '../../lib/constants/languages';
+import { useLanguage } from '../../lib/context/LanguageContext';
 import LanguageSelector from './LanguageSelector';
 
 export default function LoginForm() {
-  const [lang, setLang] = useState('en');
+  const { lang, setLang, t } = useLanguage();
   const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-
-  const t = (key: string) => getTranslation(lang, key);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,9 +36,6 @@ export default function LoginForm() {
 
   return (
     <div className="w-full max-w-md mx-auto p-4">
-      <div className="flex justify-end mb-4">
-        <LanguageSelector selectedLanguage={lang} onSelectLanguage={setLang} showCardLayout={false} />
-      </div>
 
       <div className="bg-white border-2 border-black p-6 rounded-none shadow-none">
         <h2 className="text-2xl font-bold mb-2 text-[#003366] border-b border-black pb-2">
