@@ -14,18 +14,18 @@ import { getTranslation } from '../../lib/constants/languages';
 
 const initialFormState: FullRegistrationState = {
   language: 'en',
-  full_name: '',
-  mobile_number: '',
-  password: '',
-  is_manual_location: false,
-  state: '',
-  district: '',
-  location_address: '',
-  latitude: null,
-  longitude: null,
+  full_name: 'Rajesh Kumar',
+  mobile_number: '9876543210',
+  password: 'Password123',
+  is_manual_location: true,
+  state: 'Maharashtra',
+  district: 'Pune',
+  location_address: 'Village XYZ, Pune, Maharashtra',
+  latitude: 18.5204,
+  longitude: 73.8567,
   crop_name: 'Rice',
   custom_crop_name: '',
-  land_size: 1,
+  land_size: 5,
   land_unit: 'Acre',
   sowing_date: new Date().toISOString().split('T')[0],
   irrigation_type: 'Rain-fed',
@@ -33,7 +33,7 @@ const initialFormState: FullRegistrationState = {
   soil_type: 'Alluvial',
   custom_soil_type: '',
   expected_harvest_date: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-  loan_amount: 0,
+  loan_amount: 15000,
   loan_due_date: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 };
 
