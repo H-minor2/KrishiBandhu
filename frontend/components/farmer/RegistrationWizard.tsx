@@ -208,7 +208,7 @@ export default function RegistrationWizard() {
         {currentStep === 1 && (
           <div>
             <LanguageSelector
-              selectedLanguage={lang}
+              selectedLanguage={formData.language}
               onSelectLanguage={(newLang) => {
                 setLang(newLang);
                 updateFormData({ language: newLang });
