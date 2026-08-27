@@ -1,20 +1,22 @@
-'use client'
+"use client";
 
-import React from 'react';
-import { getTranslation } from '../../lib/constants/languages';
+import React from "react";
+import { getTranslation } from "../../lib/constants/languages";
 
 interface FinancialDetailsInputProps {
   language: string;
-  loanAmount: number | '';
+  loanAmount: number | "";
   loanDueDate: string;
-  onChange: (fields: Partial<{ loan_amount: number | ''; loan_due_date: string }>) => void;
+  onChange: (
+    fields: Partial<{ loan_amount: number | ""; loan_due_date: string }>,
+  ) => void;
 }
 
 export default function FinancialDetailsInput({
   language,
   loanAmount,
   loanDueDate,
-  onChange
+  onChange,
 }: FinancialDetailsInputProps) {
   const t = (key: string) => getTranslation(language, key);
 
@@ -27,11 +29,14 @@ export default function FinancialDetailsInput({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Loan Amount in ₹ */}
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="loan-amount-input" className="font-bold text-black text-sm">
-            {t('loanAmountLabel')}
+          <label
+            htmlFor="loan-amount-input"
+            className="font-bold text-black text-sm"
+          >
+            {t("loanAmountLabel")}
           </label>
           <div className="flex items-stretch">
-            <span className="bg-[#003366] text-white border border-black px-3.5 flex items-center font-bold text-lg">
+            <span className="bg-[#058b2d] text-white border border-black px-3.5 flex items-center font-bold text-lg">
               ₹
             </span>
             <input
@@ -42,7 +47,8 @@ export default function FinancialDetailsInput({
               placeholder="e.g. 50000"
               value={loanAmount}
               onChange={(e) => {
-                const val = e.target.value === '' ? '' : parseFloat(e.target.value);
+                const val =
+                  e.target.value === "" ? "" : parseFloat(e.target.value);
                 onChange({ loan_amount: val });
               }}
               className="w-full border border-black border-l-0 p-3 rounded-none text-black bg-white focus:outline-none focus:ring-2 focus:ring-[#003366] font-semibold"
@@ -55,8 +61,11 @@ export default function FinancialDetailsInput({
 
         {/* Loan Due Date */}
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="loan-due-date" className="font-bold text-black text-sm">
-            📆 {t('loanDueDateLabel')}
+          <label
+            htmlFor="loan-due-date"
+            className="font-bold text-black text-sm"
+          >
+            📆 {t("loanDueDateLabel")}
           </label>
           <input
             id="loan-due-date"

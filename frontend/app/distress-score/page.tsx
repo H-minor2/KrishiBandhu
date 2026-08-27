@@ -13,7 +13,7 @@ export default function DistressScorePage() {
     <main className="min-h-screen m-0 p-0 font-[Arial,Verdana,sans-serif] bg-slate-50 text-black">
       
       {/* Navbar */}
-      <nav className="w-full bg-[#003366] text-white p-4 border-b border-black flex flex-wrap gap-4 justify-between items-center rounded-none shadow-none shrink-0">
+      <nav className="w-full bg-[#058b2d] text-white p-4 border-b border-black flex flex-wrap gap-4 justify-between items-center rounded-none shadow-none shrink-0">
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="w-12 h-12 bg-white flex items-center justify-center text-[#003366] border border-black font-bold no-underline">
             SEAL
