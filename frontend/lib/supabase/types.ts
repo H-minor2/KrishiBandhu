@@ -26,6 +26,7 @@ export interface FarmerProfile {
   preferred_language: string;
   state: string;
   district: string;
+  pincode?: string;
   location_address?: string;
   latitude?: number | null;
   longitude?: number | null;
