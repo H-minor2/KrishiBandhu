@@ -11,6 +11,7 @@ import FinancialDetailsInput from './FinancialDetailsInput';
 import { FullRegistrationState } from '../../lib/supabase/types';
 import { registerFarmerAndCrop, isSupabaseConfigured } from '../../lib/supabase/client';
 import { getTranslation } from '../../lib/constants/languages';
+import { useLanguage } from '../../lib/context/LanguageContext';
 
 const initialFormState: FullRegistrationState = {
   language: 'en',
@@ -43,8 +44,8 @@ export default function RegistrationWizard() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-
-  const t = (key: string) => getTranslation(formData.language, key);
+  
+  const { lang, setLang, t } = useLanguage();
 
   const updateFormData = (fields: Partial<FullRegistrationState>) => {
     setFormData((prev) => ({ ...prev, ...fields }));
@@ -207,10 +208,12 @@ export default function RegistrationWizard() {
         {currentStep === 1 && (
           <div>
             <LanguageSelector
-              selectedLanguage={formData.language}
-              onSelectLanguage={(lang) => {
-                updateFormData({ language: lang });
+              selectedLanguage={lang}
+              onSelectLanguage={(newLang) => {
+                setLang(newLang);
+                updateFormData({ language: newLang });
               }}
+              showCardLayout={true}
             />
             <div className="flex justify-end mt-4">
               <button

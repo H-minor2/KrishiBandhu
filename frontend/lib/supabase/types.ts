@@ -48,6 +48,7 @@ export interface FarmerCropData {
   loan_due_date: string;
   created_at?: string;
   updated_at?: string;
+  sync_status?: 'pending' | 'synced';
 }
 
 export interface FullRegistrationState {
