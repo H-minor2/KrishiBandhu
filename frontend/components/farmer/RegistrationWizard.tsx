@@ -202,7 +202,7 @@ export default function RegistrationWizard() {
       )}
 
       {/* Step Contents */}
-      <form onSubmit={currentStep === 6 ? handleSubmitFinal : (e) => { e.preventDefault(); handleNextStep(); }}>
+      <form onSubmit={(e) => { e.preventDefault(); if (currentStep === 6) { console.log('Submitting final step'); handleSubmitFinal(e); } else { handleNextStep(); } }}>
 
         {/* STEP 1: Select Language */}
         {currentStep === 1 && (
