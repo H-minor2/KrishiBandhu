@@ -4,6 +4,7 @@ import React from "react";
 import { IRRIGATION_TYPES, SOIL_TYPES } from "../../lib/constants/crops";
 import { IrrigationType, SoilType } from "../../lib/supabase/types";
 import { getTranslation } from "../../lib/constants/languages";
+import { Calendar, Wheat, Layers, Droplets } from "lucide-react";
 
 interface AgriDetailsInputProps {
   language: string;
@@ -40,14 +41,15 @@ export default function AgriDetailsInput({
   return (
     <div className="bg-white border border-black p-5 rounded-none space-y-5">
       <h3 className="text-lg font-bold text-[#003366] border-b border-black pb-2">
-        🌱 Agricultural Parameters (Sowing, Soil & Irrigation)
+        Agricultural Parameters (Sowing, Soil & Irrigation)
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Sowing Date */}
         <div className="flex flex-col gap-1.5">
           <label htmlFor="sowing-date" className="font-bold text-black text-sm">
-            📅 {t("sowingDateLabel")} *
+            <Calendar className="inline-block w-4 h-4 mr-1 mb-0.5" />
+            {t("sowingDateLabel")} *
           </label>
           <input
             id="sowing-date"
@@ -65,7 +67,8 @@ export default function AgriDetailsInput({
             htmlFor="harvest-date"
             className="font-bold text-black text-sm"
           >
-            🌾 {t("expectedHarvestDateLabel")} *
+            <Wheat className="inline-block w-4 h-4 mr-1 mb-0.5" />
+            {t("expectedHarvestDateLabel")} *
           </label>
           <input
             id="harvest-date"
@@ -86,7 +89,8 @@ export default function AgriDetailsInput({
           htmlFor="soil-type-select"
           className="font-bold text-black text-sm"
         >
-          🧱 {t("soilTypeLabel")} *
+          <Layers className="inline-block w-4 h-4 mr-1 mb-0.5" />
+          {t("soilTypeLabel")} *
         </label>
 
         {/* Clickable Option Cards for Soil Type */}
@@ -155,7 +159,8 @@ export default function AgriDetailsInput({
       {/* Irrigation Type Selection (Radio / Dropdown) */}
       <div className="flex flex-col gap-2">
         <label className="font-bold text-black text-sm">
-          💧 {t("irrigationTypeLabel")} *
+          <Droplets className="inline-block w-4 h-4 mr-1 mb-0.5" />
+          {t("irrigationTypeLabel")} *
         </label>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {IRRIGATION_TYPES.map((type) => {

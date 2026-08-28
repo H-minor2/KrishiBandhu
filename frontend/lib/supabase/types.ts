@@ -27,6 +27,7 @@ export interface FarmerProfile {
   state: string;
   district: string;
   location_address?: string;
+  annual_income?: number;
   latitude?: number | null;
   longitude?: number | null;
   created_at?: string;
@@ -45,6 +46,7 @@ export interface FarmerCropData {
   soil_type: SoilType;
   expected_harvest_date: string;
   loan_amount: number;
+  outstanding_loan_amount?: number;
   loan_due_date: string;
   created_at?: string;
   updated_at?: string;
@@ -59,6 +61,7 @@ export interface FullRegistrationState {
   full_name: string;
   mobile_number: string;
   password?: string;
+  annual_income: number | '';
 
   // Step 3: Location
   is_manual_location: boolean;

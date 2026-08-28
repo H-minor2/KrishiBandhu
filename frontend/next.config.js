@@ -19,6 +19,14 @@ const nextConfig = {
         source: '/api/advisory',
         destination: 'http://127.0.0.1:8000/advisory',
       },
+      {
+        source: '/api/distress',
+        destination: 'http://127.0.0.1:8001/distress/predict',
+      },
+      {
+        source: '/api/market',
+        destination: 'http://127.0.0.1:8001/market/prices',
+      },
     ];
   },
 };

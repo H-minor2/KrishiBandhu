@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { CROP_OPTIONS, filterCrops } from "../../lib/constants/crops";
 import { getTranslation } from "../../lib/constants/languages";
+import { Wheat, Bean, Carrot, MapPin, Sprout } from "lucide-react";
 
 interface CropSelectorProps {
   language: string;
@@ -25,31 +26,33 @@ export default function CropSelector({
   const filteredCrops = filterCrops(searchQuery);
 
   const getCropDisplay = (crop: string) => {
+    const iconClass = "w-5 h-5 text-gray-700";
     switch (crop) {
       case "Rice":
-        return { icon: "🌾", label: "Rice (चावल / நெல் / ధాన్యం)" };
+        return { icon: <Wheat className={iconClass} />, label: "Rice (चावल / நெல் / ధాన్యం)" };
       case "Wheat":
-        return { icon: "🌾", label: "Wheat (गेहूं / கோதுமை / గోధుమ)" };
+        return { icon: <Wheat className={iconClass} />, label: "Wheat (गेहूं / கோதுமை / గోధుమ)" };
       case "Maize":
-        return { icon: "🌽", label: "Maize (मक्का / சோளம் / మొక్కజొన్న)" };
+        return { icon: <Sprout className={iconClass} />, label: "Maize (मक्का / சோளம் / మొక్కజొన్న)" };
       case "Cotton":
-        return { icon: "⚪", label: "Cotton (कपास / பருத்தி / పత్తి)" };
+        return { icon: <Sprout className={iconClass} />, label: "Cotton (कपास / பருத்தி / పత్తి)" };
       case "Pulses":
         return {
-          icon: "🫘",
+          icon: <Bean className={iconClass} />,
           label: "Pulses (दालें / பருப்பு / పప్పుధాన్యాలు)",
         };
       case "Vegetables":
-        return { icon: "🥦", label: "Vegetables (सब्जियां / காய்கறிகள்)" };
+        return { icon: <Carrot className={iconClass} />, label: "Vegetables (सब्जियां / காய்கறிகள்)" };
       default:
-        return { icon: "📌", label: "Other (অন্যান্য / अन्य / ఇతర)" };
+        return { icon: <MapPin className={iconClass} />, label: "Other (অন্যান্য / अन्य / ఇతర)" };
     }
   };
 
   return (
     <div className="bg-white border border-black p-5 rounded-none space-y-4">
-      <h3 className="text-lg font-bold text-[#003366] border-b border-black pb-2">
-        🌾 {t("cropLabel")} Information
+      <h3 className="text-lg font-bold text-[#003366] border-b border-black pb-2 flex items-center gap-2">
+        <Wheat className="w-5 h-5 text-[#003366]" />
+        {t("cropLabel")} Information
       </h3>
 
       <div className="flex flex-col gap-2.5">

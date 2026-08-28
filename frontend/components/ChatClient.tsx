@@ -3,17 +3,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Bot, User, Send, ArrowLeft } from "lucide-react";
+import { Bot, User, Send, ArrowLeft, Wheat, Mountain, CloudRain } from "lucide-react";
 import LanguageSelector from "./auth/LanguageSelector";
 import { useLanguage } from "../lib/context/LanguageContext";
 import "../app/globals.css";
 
 type ChatStep =
-  | "crop"
+  | "initializing"
   | "growth_stage"
-  | "soil_type"
   | "pesticide_applied"
-  | "avg_rainfall_7day"
   | "fetching"
   | "done";
 
@@ -39,7 +37,7 @@ export default function ChatBotPage() {
     },
   ]);
 
-  const [chatStep, setChatStep] = useState<ChatStep>("crop");
+  const [chatStep, setChatStep] = useState<ChatStep>("initializing");
   const [answers, setAnswers] = useState<ChatAnswers>({
     crop: "",
     growth_stage: "",
@@ -54,11 +52,46 @@ export default function ChatBotPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, chatStep]);
 
+  useEffect(() => {
+    // Auto-hydrate from localStorage if cropId exists
+    if (cropId && cropId !== "new") {
+      try {
+        const storedCrops = localStorage.getItem("krishi_bandhu_cached_crops") || localStorage.getItem("krishibandhu_farmer_crops") || localStorage.getItem("krishibandhu_crops");
+        if (storedCrops) {
+          const crops = JSON.parse(storedCrops);
+          const decodedCropId = decodeURIComponent(cropId);
+          let crop = crops.find((c: any) => c.id === decodedCropId || c.crop_name === decodedCropId || c.crop_name?.toLowerCase() === decodedCropId.toLowerCase());
+          if (!crop) {
+            const cropIndex = parseInt(decodedCropId);
+            if (!isNaN(cropIndex) && cropIndex >= 0 && cropIndex < crops.length) {
+              crop = crops[cropIndex];
+            }
+          }
+          if (crop) {
+            setAnswers(prev => ({
+              ...prev,
+              crop: crop.crop_name,
+              soil_type: crop.soil_type || "Alluvial"
+            }));
+            setChatStep("growth_stage");
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("Failed to parse crops from localStorage", e);
+      }
+    }
+    // If not hydrated, still start at growth stage as per new requirements
+    setChatStep("growth_stage");
+  }, [cropId]);
+
   // Handle asking the next question based on chatStep
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     if (messages[messages.length - 1].sender === "user") {
       const askQuestion = (q: string) => {
-        setTimeout(
+        timeoutId = setTimeout(
           () =>
             setMessages((prev) => [
               ...prev,
@@ -72,31 +105,34 @@ export default function ChatBotPage() {
         case "growth_stage":
           askQuestion("advAskStage");
           break;
-        case "soil_type":
-          askQuestion("advAskSoil");
-          break;
         case "pesticide_applied":
           askQuestion("advAskPesticide");
-          break;
-        case "avg_rainfall_7day":
-          askQuestion("advAskRainfall");
           break;
         case "fetching":
           askQuestion("advFetching");
           fetchAdvisory();
           break;
       }
-    } else if (messages.length === 1) {
+    } else if (messages.length === 1 && chatStep !== "initializing") {
       // Ask first question on load
-      setTimeout(
+      const firstQ = "advAskStage";
+      timeoutId = setTimeout(
         () =>
-          setMessages((prev) => [
-            ...prev,
-            { id: Date.now(), sender: "ai", text: "advAskCrop" },
-          ]),
+          setMessages((prev) => {
+            // Prevent duplicate initial questions if it's already there
+            if (prev.some(m => m.text === firstQ)) return prev;
+            return [
+              ...prev,
+              { id: Date.now(), sender: "ai", text: firstQ },
+            ];
+          }),
         400,
       );
     }
+    
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatStep]);
 
@@ -114,17 +150,11 @@ export default function ChatBotPage() {
 
     // Move to next step
     switch (chatStep) {
-      case "crop":
-        setChatStep("growth_stage");
-        break;
       case "growth_stage":
-        setChatStep("soil_type");
-        break;
-      case "soil_type":
         setChatStep("pesticide_applied");
         break;
       case "pesticide_applied":
-        setChatStep("avg_rainfall_7day");
+        setChatStep("fetching");
         break;
       default:
         break;
@@ -147,10 +177,37 @@ export default function ChatBotPage() {
 
   const fetchAdvisory = async () => {
     try {
+      // Auto-fetch rainfall if we have a location in the profile
+      let autoRainfall = 0;
+      try {
+        const profileStr = localStorage.getItem("krishibandhu_profile");
+        if (profileStr) {
+          const profile = JSON.parse(profileStr);
+          if (profile.latitude && profile.longitude) {
+            const meteoRes = await fetch(
+              `https://api.open-meteo.com/v1/forecast?latitude=${profile.latitude}&longitude=${profile.longitude}&daily=precipitation_sum&past_days=7&forecast_days=1&timezone=auto`
+            );
+            if (meteoRes.ok) {
+              const meteoData = await meteoRes.json();
+              const rainList = meteoData.daily?.precipitation_sum || [];
+              // Sum up the past 7 days (omitting today if forecast_days=1 is the last item, or just sum all)
+              autoRainfall = rainList.reduce((a: number, b: number) => a + (b || 0), 0);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to auto-fetch rainfall", err);
+      }
+
+      const payload = { ...answers };
+      if (!payload.avg_rainfall_7day) {
+        payload.avg_rainfall_7day = autoRainfall;
+      }
+
       const response = await fetch("/api/advisory", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(answers),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -165,7 +222,7 @@ export default function ChatBotPage() {
           {
             id: Date.now(),
             sender: "ai",
-            text: `📊 Water Deficit: ${data.water_deficit_mm.toFixed(2)} mm\n\n💡 Advisory: ${data.advisory}`,
+            text: `Water Deficit: ${data.water_deficit_mm.toFixed(2)} mm\n\nAdvisory: ${data.advisory}`,
           },
         ]);
         setChatStep("done");
@@ -209,8 +266,6 @@ export default function ChatBotPage() {
 
         <div className="flex flex-wrap items-center gap-3">
           <LanguageSelector
-            selectedLanguage={lang}
-            onSelectLanguage={setLang}
             showCardLayout={false}
           />
           <Link
@@ -225,21 +280,47 @@ export default function ChatBotPage() {
 
       {/* Main Chat Area */}
       <div className="flex-1 w-full max-w-4xl mx-auto flex flex-col p-4 sm:p-6 overflow-hidden">
-        {/* Chat Header */}
-        <div className="bg-white border-2 border-black p-4 mb-4 rounded-xl flex items-center gap-3 shrink-0 shadow-sm">
-          <div className="bg-[#058b2d] p-2 rounded-full">
-            <Bot className="w-6 h-6 text-white" />
+        {/* Chat Header & Context Info Banner */}
+        <div className="bg-white border-2 border-black p-4 mb-4 rounded-xl flex flex-col gap-4 shrink-0 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="bg-[#058b2d] p-2 rounded-full">
+              <Bot className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-black">{t("aiAssistant")}</h2>
+              <p className="text-sm text-gray-600 font-medium">
+                {t("consultingFor")} #{cropId.substring(0, 8)}
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-bold text-black">{t("aiAssistant")}</h2>
-            <p className="text-sm text-gray-600 font-medium">
-              {t("consultingFor")} #{cropId.substring(0, 8)}
-            </p>
+          
+          <div className="flex flex-wrap gap-3 text-sm font-bold text-[#003366]">
+            {answers.crop && (
+              <div className="flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-lg border border-[#058b2d]">
+                <Wheat className="w-4 h-4 text-[#058b2d]" />
+                {t(`crop_${answers.crop.toLowerCase()}`) || answers.crop}
+              </div>
+            )}
+            {answers.soil_type && (
+              <div className="flex items-center gap-1.5 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-500">
+                <Mountain className="w-4 h-4 text-amber-700" />
+                {t(`soil_${answers.soil_type.toLowerCase()}`) || answers.soil_type}
+              </div>
+            )}
+            {answers.avg_rainfall_7day !== null && answers.avg_rainfall_7day !== undefined && (
+              <div className="flex items-center gap-1.5 bg-sky-50 px-3 py-1.5 rounded-lg border border-sky-500">
+                <CloudRain className="w-4 h-4 text-sky-700" />
+                {answers.avg_rainfall_7day.toFixed(1)} mm
+              </div>
+            )}
           </div>
         </div>
 
         {/* Messages Container */}
         <div className="flex-1 bg-white border-2 border-black rounded-xl p-4 overflow-y-auto flex flex-col gap-4 mb-4">
+          {chatStep === "initializing" && (
+            <div className="text-center font-bold text-gray-500 my-4">Initializing context...</div>
+          )}
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -271,32 +352,6 @@ export default function ChatBotPage() {
             chatStep !== "fetching" &&
             chatStep !== "done" && (
               <div className="flex flex-wrap gap-2 mt-2 ml-12">
-                {chatStep === "crop" &&
-                  [
-                    "rice",
-                    "wheat",
-                    "maize",
-                    "chickpea",
-                    "pigeon_pea",
-                    "cotton",
-                    "sugarcane",
-                    "tomato",
-                    "potato",
-                  ].map((c) => (
-                    <button
-                      key={c}
-                      onClick={() =>
-                        handleOptionSelect(
-                          c,
-                          `crop_${c}`
-                        )
-                      }
-                      className="bg-white border-2 border-[#003366] text-[#003366] font-bold px-4 py-2 rounded-full text-sm hover:bg-[#058b2d] hover:text-white transition-colors capitalize"
-                    >
-                      {t(`crop_${c}`)}
-                    </button>
-                  ))}
-
                 {chatStep === "growth_stage" &&
                   [
                     "sowing",
@@ -316,22 +371,6 @@ export default function ChatBotPage() {
                       className="bg-white border-2 border-[#003366] text-[#003366] font-bold px-4 py-2 rounded-full text-sm hover:bg-[#058b2d] hover:text-white transition-colors capitalize"
                     >
                       {t(`stage_${s}`)}
-                    </button>
-                  ))}
-
-                {chatStep === "soil_type" &&
-                  ["sandy", "loamy", "clay"].map((s) => (
-                    <button
-                      key={s}
-                      onClick={() =>
-                        handleOptionSelect(
-                          s,
-                          `soil_${s}`
-                        )
-                      }
-                      className="bg-white border-2 border-[#003366] text-[#003366] font-bold px-4 py-2 rounded-full text-sm hover:bg-[#058b2d] hover:text-white transition-colors capitalize"
-                    >
-                      {t(`soil_${s}`)} {t("advSoilSfx")}
                     </button>
                   ))}
 
@@ -358,7 +397,7 @@ export default function ChatBotPage() {
         </div>
 
         {/* Input Area (Only show for Rainfall step) */}
-        <div className="shrink-0 h-20">
+        {/* <div className="shrink-0 h-20">
           {chatStep === "avg_rainfall_7day" ? (
             <form
               onSubmit={handleNumberSubmit}
@@ -387,7 +426,7 @@ export default function ChatBotPage() {
               {chatStep === "done" ? t("advDone") : t("advSelectOption")}
             </div>
           )}
-        </div>
+        </div> */}
       </div>
     </main>
   );

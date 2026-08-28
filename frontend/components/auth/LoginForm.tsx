@@ -6,6 +6,7 @@ import { loginFarmer, isSupabaseConfigured } from "../../lib/supabase/client";
 import { getTranslation } from "../../lib/constants/languages";
 import { useLanguage } from "../../lib/context/LanguageContext";
 import LanguageSelector from "./LanguageSelector";
+import { Zap, AlertTriangle } from "lucide-react";
 
 export default function LoginForm() {
   const { lang, setLang, t } = useLanguage();
@@ -44,15 +45,19 @@ export default function LoginForm() {
         </h2>
 
         {!isSupabaseConfigured && (
-          <div className="mb-4 bg-amber-50 border border-amber-500 p-2 text-xs text-amber-900 font-semibold">
-            ⚡ Demo / Local Mode: Database operating in client mode. Credentials
-            will validate directly.
+          <div className="mb-4 bg-amber-50 border border-amber-500 p-2 text-xs text-amber-900 font-semibold flex items-start gap-1">
+            <Zap className="w-4 h-4 shrink-0 text-amber-500 mt-0.5" />
+            <div>
+              Demo / Local Mode: Database operating in client mode. Credentials
+              will validate directly.
+            </div>
           </div>
         )}
 
         {errorMsg && (
-          <div className="mb-4 bg-red-100 border border-red-600 text-red-800 p-3 text-sm font-bold">
-            ⚠️ {errorMsg}
+          <div className="mb-4 bg-red-100 border border-red-600 text-red-800 p-3 text-sm font-bold flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 shrink-0" />
+            <span>{errorMsg}</span>
           </div>
         )}
 

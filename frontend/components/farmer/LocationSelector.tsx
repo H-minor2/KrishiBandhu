@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ALL_INDIAN_STATES, INDIA_STATES_DISTRICTS, fetchLocationViaGeocoding } from '../../lib/constants/indiaLocations';
 import { getTranslation } from '../../lib/constants/languages';
+import { AlertTriangle, MapPin } from 'lucide-react';
 
 interface LocationSelectorProps {
   language: string;
@@ -45,7 +46,7 @@ export default function LocationSelector({
     try {
       const loc = await fetchLocationViaGeocoding();
       setLocating(false);
-      setGeoMsg('📍 Location successfully updated!');
+      setGeoMsg('Location successfully updated!');
       
       const updates: any = {
         latitude: loc.latitude,
@@ -63,15 +64,16 @@ export default function LocationSelector({
       onChange(updates);
     } catch (err: any) {
       setLocating(false);
-      setGeoMsg(`⚠️ ${err.message || 'Could not fetch auto location. Please select state and district.'}`);
+      setGeoMsg(`Could not fetch auto location. Please select state and district. ${err.message || ''}`);
     }
   };
 
   return (
     <div className="bg-white border border-black p-5 rounded-none space-y-4">
       <div className="flex flex-wrap justify-between items-center border-b border-black pb-2 gap-2">
-        <h3 className="text-lg font-bold text-[#003366]">
-          📍 {t('locationTitle')}
+        <h3 className="text-lg font-bold text-[#003366] flex items-center gap-2">
+          <MapPin className="w-5 h-5 text-[#003366]" />
+          {t('locationTitle')}
         </h3>
         
         {/* Toggle Manual / Cascade mode */}
@@ -87,8 +89,9 @@ export default function LocationSelector({
       </div>
 
       {geoMsg && (
-        <div className="bg-blue-50 border border-blue-400 p-2.5 text-xs text-blue-900 font-medium">
-          {geoMsg}
+        <div className={`text-sm font-bold p-3 flex items-center gap-2 ${geoMsg.includes('Could not') ? 'bg-red-100 text-red-800 border border-red-600' : 'bg-green-100 text-green-800 border border-green-600'}`}>
+          {geoMsg.includes('Could not') ? <AlertTriangle className="w-4 h-4 shrink-0" /> : null}
+          <span>{geoMsg}</span>
         </div>
       )}
 

@@ -6,10 +6,12 @@ import { useLanguage } from "../../lib/context/LanguageContext";
 
 interface LanguageSelectorProps {
   showCardLayout?: boolean;
+  onLanguageChange?: (lang: string) => void;
 }
 
 export default function LanguageSelector({
   showCardLayout = true,
+  onLanguageChange,
 }: LanguageSelectorProps = {}) {
   const {
     lang: selectedLanguage,
@@ -20,7 +22,10 @@ export default function LanguageSelector({
     return (
       <select
         value={selectedLanguage}
-        onChange={(e) => onSelectLanguage(e.target.value)}
+        onChange={(e) => {
+          onSelectLanguage(e.target.value);
+          if (onLanguageChange) onLanguageChange(e.target.value);
+        }}
         className="bg-white text-black border border-black px-3 py-1.5 rounded-none font-bold text-sm cursor-pointer hover:bg-gray-100 shadow-none outline-none focus:ring-2 focus:ring-yellow-300"
       >
         {SUPPORTED_LANGUAGES.map((lang) => (
@@ -49,7 +54,10 @@ export default function LanguageSelector({
             <button
               key={lang.code}
               type="button"
-              onClick={() => onSelectLanguage(lang.code)}
+              onClick={() => {
+                onSelectLanguage(lang.code);
+                if (onLanguageChange) onLanguageChange(lang.code);
+              }}
               className={`p-3 border font-bold text-left cursor-pointer transition-colors ${
                 isSelected
                   ? "bg-[#058b2d] text-white border-black ring-2 ring-yellow-300"

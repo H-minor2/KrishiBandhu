@@ -13,7 +13,8 @@ export default function LandingClientWrapper({
   initialLang: string;
 }) {
   const { lang, setLang, t } = useLanguage();
-  const [fontSize, setFontSize] = useState("text-base");
+  const fontSizes = ["text-xs", "text-sm", "text-base", "text-lg", "text-xl", "text-2xl"];
+  const [fontSizeIndex, setFontSizeIndex] = useState(2);
   const [isHighContrast, setIsHighContrast] = useState(false);
 
   const wrapperClasses = isHighContrast
@@ -22,7 +23,7 @@ export default function LandingClientWrapper({
 
   return (
     <main
-      className={`min-h-screen m-0 p-0 font-[Arial,Verdana,sans-serif] ${wrapperClasses} ${fontSize}`}
+      className={`min-h-screen m-0 p-0 font-[Arial,Verdana,sans-serif] ${wrapperClasses} ${fontSizes[fontSizeIndex]}`}
     >
       <nav className="w-full bg-[#058b2d] text-white p-4 border-b border-black flex flex-wrap gap-4 justify-between items-center rounded-none shadow-none">
         <div className="flex items-center gap-4">
@@ -48,14 +49,14 @@ export default function LandingClientWrapper({
           <div className="flex">
             <button
               type="button"
-              onClick={() => setFontSize("text-lg")}
+              onClick={() => setFontSizeIndex(prev => Math.min(prev + 1, fontSizes.length - 1))}
               className="bg-white text-black border border-black px-3 py-1.5 font-bold cursor-pointer rounded-none outline-none focus:ring-2 focus:ring-yellow-300"
             >
               A+
             </button>
             <button
               type="button"
-              onClick={() => setFontSize("text-sm")}
+              onClick={() => setFontSizeIndex(prev => Math.max(prev - 1, 0))}
               className="bg-white text-black border border-black border-l-0 px-3 py-1.5 font-bold cursor-pointer rounded-none outline-none focus:ring-2 focus:ring-yellow-300"
             >
               A-

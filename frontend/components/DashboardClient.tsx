@@ -13,20 +13,25 @@ import AgriDetailsInput from "./farmer/AgriDetailsInput";
 import FinancialDetailsInput from "./farmer/FinancialDetailsInput";
 import "../app/globals.css";
 import {
-  Wheat,
+  User,
   Plus,
-  CircleUserRound,
+  AlertTriangle,
+  ChevronRight,
   Phone,
   Pin,
   Hourglass,
   CheckCheck,
+  TrendingUp,
+  CircleUserRound,
+  Wheat
 } from "lucide-react";
 import LanguageSelector from "./auth/LanguageSelector";
 import { useLanguage } from "../lib/context/LanguageContext";
 
 export default function DashboardPage() {
   const { lang, setLang, t } = useLanguage();
-  const [fontSize, setFontSize] = useState("text-base");
+  const fontSizes = ["text-xs", "text-sm", "text-base", "text-lg", "text-xl", "text-2xl"];
+  const [fontSizeIndex, setFontSizeIndex] = useState(2);
   const [profile, setProfile] = useState<FarmerProfile | null>(null);
   const [crops, setCrops] = useState<FarmerCropData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,6 +54,7 @@ export default function DashboardPage() {
     new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
   );
   const [loanAmount, setLoanAmount] = useState<number | "">(25000);
+  const [outstandingLoanAmount, setOutstandingLoanAmount] = useState<number | "">(0);
   const [loanDueDate, setLoanDueDate] = useState(
     new Date(Date.now() + 180 * 24 * 60 * 60 * 1000)
       .toISOString()
@@ -117,6 +123,7 @@ export default function DashboardPage() {
       soil_type: soilType,
       expected_harvest_date: harvestDate,
       loan_amount: Number(loanAmount) || 0,
+      outstanding_loan_amount: Number(outstandingLoanAmount) || 0,
       loan_due_date: loanDueDate,
       sync_status: "pending",
     };
@@ -147,6 +154,7 @@ export default function DashboardPage() {
         soil_type: soilType,
         expected_harvest_date: harvestDate,
         loan_amount: Number(loanAmount) || 0,
+        outstanding_loan_amount: Number(outstandingLoanAmount) || 0,
         loan_due_date: loanDueDate,
       });
 
@@ -155,7 +163,7 @@ export default function DashboardPage() {
         setCrops((currentCrops) => {
           const syncedCrops = currentCrops.map((c) =>
             c.id === tempId
-              ? { ...res.crop, sync_status: "synced" as const }
+              ? { ...(res.crop as any), sync_status: "synced" as const }
               : c,
           );
           if (typeof window !== "undefined") {
@@ -178,7 +186,7 @@ export default function DashboardPage() {
 
   return (
     <main
-      className={`min-h-screen m-0 p-0 font-[Arial,Verdana,sans-serif] bg-slate-50 text-black ${fontSize}`}
+      className={`min-h-screen m-0 p-0 font-[Arial,Verdana,sans-serif] bg-slate-50 text-black ${fontSizes[fontSizeIndex]}`}
     >
       {/* Navbar */}
       <nav className="w-full bg-[#058b2d] text-white p-4 border-b border-black flex flex-wrap gap-4 justify-between items-center rounded-none shadow-none">
@@ -203,14 +211,14 @@ export default function DashboardPage() {
           <div className="flex">
             <button
               type="button"
-              onClick={() => setFontSize("text-lg")}
+              onClick={() => setFontSizeIndex(prev => Math.min(prev + 1, fontSizes.length - 1))}
               className="bg-white text-black border border-black px-3 py-1.5 font-bold cursor-pointer rounded-none outline-none hover:bg-gray-200"
             >
               A+
             </button>
             <button
               type="button"
-              onClick={() => setFontSize("text-sm")}
+              onClick={() => setFontSizeIndex(prev => Math.max(prev - 1, 0))}
               className="bg-white text-black border border-black border-l-0 px-3 py-1.5 font-bold cursor-pointer rounded-none outline-none hover:bg-gray-200"
             >
               A-
@@ -273,7 +281,7 @@ export default function DashboardPage() {
         {/* Distress Score Banner */}
         <div className="w-full bg-[#FFD700] border-2 border-black p-4 flex flex-wrap justify-between items-center gap-4 cursor-pointer hover:bg-[#FACC15] transition-colors">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">⚠️</span>
+            <AlertTriangle className="w-8 h-8 text-black shrink-0" />
             <div>
               <h3 className="font-bold text-black text-lg m-0 uppercase tracking-wide">
                 Financial Distress Score
@@ -289,6 +297,27 @@ export default function DashboardPage() {
             className="bg-black text-white font-bold px-6 py-2 border border-black uppercase text-sm tracking-wider no-underline"
           >
             Calculate Score
+          </Link>
+        </div>
+
+        {/* Market Prices Banner */}
+        <div className="w-full bg-[#e6f4ea] border-2 border-[#058b2d] p-4 flex flex-wrap justify-between items-center gap-4 cursor-pointer hover:bg-green-100 transition-colors">
+          <div className="flex items-center gap-3">
+            <TrendingUp className="w-8 h-8 text-[#058b2d]" />
+            <div>
+              <h3 className="font-bold text-[#058b2d] text-lg m-0 uppercase tracking-wide">
+                Live Mandi Prices
+              </h3>
+              <p className="text-sm font-medium text-black/80 m-0">
+                Compare agricultural market prices across your state to find the most profitable Mandi.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/market"
+            className="bg-[#058b2d] text-white font-bold px-6 py-2 border border-[#058b2d] uppercase text-sm tracking-wider no-underline"
+          >
+            Check Prices
           </Link>
         </div>
 
@@ -396,7 +425,7 @@ export default function DashboardPage() {
                 </div>
 
                 <Link
-                  href={`/chat/${crop.id || idx}`}
+                  href={`/chat/${crop.id || crop.crop_name || idx}`}
                   className="mt-4 block w-full bg-[#058b2d] text-white font-bold border border-black px-4 py-3 rounded-xl hover:bg-blue-800 text-center flex items-center justify-center gap-2"
                 >
                   💬 {t("consultAI")}
@@ -471,10 +500,13 @@ export default function DashboardPage() {
               <FinancialDetailsInput
                 language="en"
                 loanAmount={loanAmount}
+                outstandingLoanAmount={outstandingLoanAmount}
                 loanDueDate={loanDueDate}
                 onChange={(fields) => {
                   if (fields.loan_amount !== undefined)
                     setLoanAmount(fields.loan_amount);
+                  if (fields.outstanding_loan_amount !== undefined)
+                    setOutstandingLoanAmount(fields.outstanding_loan_amount);
                   if (fields.loan_due_date !== undefined)
                     setLoanDueDate(fields.loan_due_date);
                 }}

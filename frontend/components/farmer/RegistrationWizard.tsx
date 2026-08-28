@@ -15,14 +15,15 @@ import {
 } from "../../lib/supabase/client";
 import { getTranslation } from "../../lib/constants/languages";
 import { useLanguage } from "../../lib/context/LanguageContext";
-import { CircleUserRound } from "lucide-react";
+import { CircleUserRound, IndianRupee, Zap, AlertTriangle, CheckCircle } from "lucide-react";
 
 const initialFormState: FullRegistrationState = {
   language: "en",
   full_name: "Rajesh Kumar",
-  mobile_number: "9876543210",
-  password: "Password123",
-  is_manual_location: true,
+  mobile_number: "",
+  password: "",
+  annual_income: "",
+  is_manual_location: false,
   state: "Maharashtra",
   district: "Pune",
   location_address: "Village XYZ, Pune, Maharashtra",
@@ -41,9 +42,8 @@ const initialFormState: FullRegistrationState = {
     .toISOString()
     .split("T")[0],
   loan_amount: 15000,
-  loan_due_date: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split("T")[0],
+  outstanding_loan_amount: 15000,
+  loan_due_date: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split("T")[0],
 };
 
 export default function RegistrationWizard() {
@@ -172,10 +172,13 @@ export default function RegistrationWizard() {
       </div>
 
       {!isSupabaseConfigured && (
-        <div className="mb-4 bg-amber-50 border-2 border-amber-500 p-3 text-sm text-amber-900 font-semibold">
-          ⚡ Supabase Status: Database running in interactive local fallback
-          mode. Submissions will populate local storage & client state. Set{" "}
-          <code>NEXT_PUBLIC_SUPABASE_URL</code> to sync live to Postgres.
+        <div className="mb-4 bg-amber-50 border-2 border-amber-500 p-3 text-sm text-amber-900 font-semibold flex items-start gap-2">
+          <Zap className="w-5 h-5 shrink-0 text-amber-500 mt-0.5" />
+          <div>
+            Supabase Status: Database running in interactive local fallback
+            mode. Submissions will populate local storage & client state. Set{" "}
+            <code>NEXT_PUBLIC_SUPABASE_URL</code> to sync live to Postgres.
+          </div>
         </div>
       )}
 
@@ -206,14 +209,16 @@ export default function RegistrationWizard() {
       </div>
 
       {errorMsg && (
-        <div className="mb-6 bg-red-100 border-2 border-red-600 text-red-900 p-4 text-sm font-bold">
-          ⚠️ {errorMsg}
+        <div className="mb-6 bg-red-100 border-2 border-red-600 text-red-900 p-4 text-sm font-bold flex items-center gap-2">
+          <AlertTriangle className="w-5 h-5 shrink-0" />
+          <span>{errorMsg}</span>
         </div>
       )}
 
       {successMsg && (
-        <div className="mb-6 bg-emerald-100 border-2 border-emerald-600 text-emerald-900 p-4 text-base font-bold text-center">
-          ✅ {successMsg} Redirecting to dashboard...
+        <div className="mb-6 bg-emerald-100 border-2 border-emerald-600 text-emerald-900 p-4 text-base font-bold flex items-center justify-center gap-2">
+          <CheckCircle className="w-6 h-6 shrink-0" />
+          <span>{successMsg} Redirecting to dashboard...</span>
         </div>
       )}
 
@@ -233,9 +238,7 @@ export default function RegistrationWizard() {
         {currentStep === 1 && (
           <div>
             <LanguageSelector
-              selectedLanguage={formData.language}
-              onSelectLanguage={(newLang) => {
-                setLang(newLang);
+              onLanguageChange={(newLang) => {
                 updateFormData({ language: newLang });
               }}
               showCardLayout={true}
@@ -291,6 +294,26 @@ export default function RegistrationWizard() {
                 value={formData.mobile_number}
                 onChange={(e) =>
                   updateFormData({ mobile_number: e.target.value })
+                }
+                required
+                className="w-full border border-black p-3 rounded-none text-black bg-white focus:outline-none focus:ring-2 focus:ring-[#003366]"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="farmer-income"
+                className="font-bold text-black text-sm"
+              >
+                {t("annualIncome") || "Estimated Annual Income (₹)"} *
+              </label>
+              <input
+                id="farmer-income"
+                type="number"
+                placeholder="e.g. 60000"
+                value={formData.annual_income}
+                onChange={(e) =>
+                  updateFormData({ annual_income: e.target.value ? Number(e.target.value) : "" })
                 }
                 required
                 className="w-full border border-black p-3 rounded-none text-black bg-white focus:outline-none focus:ring-2 focus:ring-[#003366]"
@@ -406,12 +429,14 @@ export default function RegistrationWizard() {
             <FinancialDetailsInput
               language={formData.language}
               loanAmount={formData.loan_amount}
+              outstandingLoanAmount={formData.outstanding_loan_amount}
               loanDueDate={formData.loan_due_date}
               onChange={(fields) => {
-                if (fields.loan_amount !== undefined)
-                  updateFormData({ loan_amount: fields.loan_amount });
-                if (fields.loan_due_date !== undefined)
-                  updateFormData({ loan_due_date: fields.loan_due_date });
+                const updates: Partial<typeof formData> = {};
+                if (fields.loan_amount !== undefined) updates.loan_amount = fields.loan_amount;
+                if (fields.outstanding_loan_amount !== undefined) updates.outstanding_loan_amount = fields.outstanding_loan_amount;
+                if (fields.loan_due_date !== undefined) updates.loan_due_date = fields.loan_due_date;
+                updateFormData(updates);
               }}
             />
 
@@ -448,10 +473,13 @@ export default function RegistrationWizard() {
                 <strong>Dates:</strong> Sowing ({formData.sowing_date}) ➔
                 Harvest ({formData.expected_harvest_date})
               </p>
-              <p>
-                <strong>Loan Info:</strong> ₹{formData.loan_amount || 0} (Due:{" "}
-                {formData.loan_due_date || "N/A"})
-              </p>
+              <div className="flex items-center gap-2">
+                <IndianRupee className="w-5 h-5 text-gray-500" />
+                <span>
+                  <strong>Loan Info:</strong> ₹{formData.loan_amount || 0} Total / ₹{formData.outstanding_loan_amount || 0} Outstanding (Due:{" "}
+                  {formData.loan_due_date})
+                </span>
+              </div>
             </div>
           </div>
         )}

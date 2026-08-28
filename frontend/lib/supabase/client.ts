@@ -13,10 +13,22 @@ export const supabase = isSupabaseConfigured
 const MOCK_STORAGE_KEY_PROFILE = 'krishibandhu_farmer_profile';
 const MOCK_STORAGE_KEY_CROPS = 'krishibandhu_farmer_crops';
 
+// Fallback UUID generator for mobile browsers that do not support crypto.randomUUID()
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 export async function registerFarmerAndCrop(data: FullRegistrationState): Promise<{ success: boolean; profile?: FarmerProfile; crop?: FarmerCropData; error?: string }> {
   try {
     // Generate valid UUID for Postgres compliance
-    const validUserUuid = crypto.randomUUID();
+    const validUserUuid = generateUUID();
 
     const profilePayload: FarmerProfile = {
       id: validUserUuid,
@@ -25,6 +37,7 @@ export async function registerFarmerAndCrop(data: FullRegistrationState): Promis
       preferred_language: data.language,
       state: data.state,
       district: data.district,
+      annual_income: data.annual_income || 60000,
       location_address: data.location_address,
       latitude: data.latitude || null,
       longitude: data.longitude || null
@@ -90,12 +103,13 @@ export async function registerFarmerAndCrop(data: FullRegistrationState): Promis
         soil_type: data.soil_type === 'Other' && data.custom_soil_type ? data.custom_soil_type : data.soil_type,
         expected_harvest_date: data.expected_harvest_date,
         loan_amount: Number(data.loan_amount) || 0,
+        outstanding_loan_amount: Number(data.outstanding_loan_amount) || 0,
         loan_due_date: data.loan_due_date
       };
 
       let finalCrop: FarmerCropData = {
         ...cropPayloadForDb,
-        id: crypto.randomUUID()
+        id: generateUUID()
       };
 
       try {
@@ -125,7 +139,7 @@ export async function registerFarmerAndCrop(data: FullRegistrationState): Promis
     } else {
       // Offline / LocalStorage Mock Fallback
       const cropPayload: FarmerCropData = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         user_id: profilePayload.id,
         crop_name: data.crop_name,
         custom_crop_name: data.crop_name === 'Other' ? data.custom_crop_name : undefined,
@@ -134,8 +148,8 @@ export async function registerFarmerAndCrop(data: FullRegistrationState): Promis
         sowing_date: data.sowing_date,
         irrigation_type: data.irrigation_type,
         soil_type: data.soil_type,
-        expected_harvest_date: data.expected_harvest_date,
         loan_amount: Number(data.loan_amount) || 0,
+        outstanding_loan_amount: Number(data.outstanding_loan_amount) || 0,
         loan_due_date: data.loan_due_date,
         created_at: new Date().toISOString()
       };
@@ -179,7 +193,7 @@ export async function loginFarmer(mobileNumber: string, password?: string): Prom
     }
 
     const mockProfile: FarmerProfile = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       full_name: 'Registered Farmer',
       mobile_number: mobileNumber,
       preferred_language: 'en',
@@ -236,7 +250,7 @@ export async function fetchFarmerDashboardData(): Promise<{ profile: FarmerProfi
 export async function addNewCropToSupabase(cropData: Partial<FarmerCropData>): Promise<{ success: boolean; crop?: FarmerCropData; error?: string }> {
   try {
     const localData = getStoredFarmerData();
-    const userId = localData.profile?.id || crypto.randomUUID();
+    const userId = localData.profile?.id || generateUUID();
 
     const payloadForDb: any = {
       user_id: userId,
@@ -249,12 +263,13 @@ export async function addNewCropToSupabase(cropData: Partial<FarmerCropData>): P
       soil_type: cropData.soil_type || 'Alluvial',
       expected_harvest_date: cropData.expected_harvest_date || new Date().toISOString().split('T')[0],
       loan_amount: Number(cropData.loan_amount) || 0,
+      outstanding_loan_amount: Number(cropData.outstanding_loan_amount) || 0,
       loan_due_date: cropData.loan_due_date || new Date().toISOString().split('T')[0]
     };
 
     let finalCrop: FarmerCropData = {
       ...payloadForDb,
-      id: crypto.randomUUID()
+      id: generateUUID()
     };
 
     if (isSupabaseConfigured && supabase) {
