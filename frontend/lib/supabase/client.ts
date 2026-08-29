@@ -148,6 +148,7 @@ export async function registerFarmerAndCrop(data: FullRegistrationState): Promis
         sowing_date: data.sowing_date,
         irrigation_type: data.irrigation_type,
         soil_type: data.soil_type,
+        expected_harvest_date: data.expected_harvest_date,
         loan_amount: Number(data.loan_amount) || 0,
         outstanding_loan_amount: Number(data.outstanding_loan_amount) || 0,
         loan_due_date: data.loan_due_date,
