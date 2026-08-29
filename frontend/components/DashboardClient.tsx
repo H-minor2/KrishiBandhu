@@ -204,8 +204,6 @@ export default function DashboardPage() {
 
         <div className="flex flex-wrap items-center gap-3">
           <LanguageSelector
-            selectedLanguage={lang}
-            onSelectLanguage={setLang}
             showCardLayout={false}
           />
           <div className="flex">
