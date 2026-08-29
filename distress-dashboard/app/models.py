@@ -30,6 +30,7 @@ class Loan(BaseModel):
 
 class DistressRequest(BaseModel):
     farmer_id: str
+    annual_income: float = 60000.0
     location: Location
     crop: Crop
     market: Market = Market()

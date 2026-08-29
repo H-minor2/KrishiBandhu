@@ -1,7 +1,6 @@
-
 from datetime import date
 
-def get_loan(loans):
+def get_loan(loans, annual_income: float = 60000.0):
     active = [l for l in loans if l.status.lower() == "active"]
     if not active:
         return {
@@ -33,16 +32,40 @@ def get_loan(loans):
         if nearest.outstanding_amount is not None
         else nearest.amount
     )
-    ratio = 0.0
-    if nearest.amount > 0:
-        ratio = min(1.0, max(0.0, outstanding / nearest.amount))
+    
+    # Calculate Debt-to-Income (DTI) Ratio
+    # This evaluates the true financial burden on the farmer
+    dti_ratio = 0.0
+    if annual_income > 0:
+        dti_ratio = outstanding / annual_income
 
-    score = round(0.80 * urgency + 0.20 * ratio * 100.0, 2)
+    # Score based on DTI severity
+    # > 50% is considered extremely high risk in agriculture
+    dti_score = 0.0
+    if dti_ratio > 0.50:
+        dti_score = 100.0
+    elif dti_ratio > 0.35:
+        dti_score = 75.0
+    elif dti_ratio > 0.20:
+        dti_score = 50.0
+    elif dti_ratio > 0.10:
+        dti_score = 25.0
+    else:
+        dti_score = 0.0
+
+    # Combine urgency and DTI burden
+    if dti_ratio > 1.0:
+        # Extreme DTI overrides urgency
+        score = max(80.0, dti_score)
+    elif dti_ratio > 0.60:
+        score = max(60.0, round(0.50 * urgency + 0.50 * dti_score, 2))
+    else:
+        score = round(0.50 * urgency + 0.50 * dti_score, 2)
 
     status = "overdue" if days < 0 else "due"
     explanation = (
         f"Nearest active loan repayment is {status} in {abs(days) if days < 0 else days} "
-        f"day(s). Outstanding balance is ₹{outstanding:.0f}."
+        f"day(s). Outstanding balance is ₹{outstanding:.0f} (DTI: {dti_ratio*100:.1f}% of ₹{annual_income:.0f} income)."
     )
 
     return {
@@ -54,6 +77,7 @@ def get_loan(loans):
             "days_to_due": days,
             "amount": nearest.amount,
             "outstanding_amount": outstanding,
-            "outstanding_ratio": round(ratio, 3),
+            "annual_income": annual_income,
+            "dti_ratio": round(dti_ratio, 3),
         },
     }

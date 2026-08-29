@@ -33,7 +33,7 @@ def build_distress_result(req: DistressRequest):
         req.market.name,
     )
 
-    loan = get_loan(req.loans)
+    loan = get_loan(req.loans, req.annual_income)
 
     components = {}
     for name, result in [
@@ -56,6 +56,15 @@ def build_distress_result(req: DistressRequest):
         sum(c["contribution"] for c in components.values()),
         2,
     )
+
+    # Extreme Condition Overrides
+    # If DTI is > 100%, it's a catastrophic debt trap; force score to CRITICAL.
+    dti = components.get("loan", {}).get("data", {}).get("dti_ratio", 0)
+    if dti > 1.0:
+        final_score = max(final_score, 85.0)
+    # If DTI is > 60%, force score to HIGH.
+    elif dti > 0.60:
+        final_score = max(final_score, 65.0)
 
     reasons = [
         components["weather"]["explanation"],
