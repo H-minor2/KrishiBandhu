@@ -87,5 +87,6 @@ export interface FullRegistrationState {
 
   // Step 6: Financial / Loan Info
   loan_amount: number | '';
+  outstanding_loan_amount: number | '';
   loan_due_date: string;
 }
