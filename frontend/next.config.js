@@ -14,18 +14,20 @@ const withPWA = require("@ducanh2912/next-pwa").default({
 const nextConfig = {
   reactStrictMode: true,
   async rewrites() {
+    const backendUrl = process.env.BACKEND_URL || 'http://127.0.0.1:8000';
+    
     return [
       {
         source: '/api/advisory',
-        destination: 'http://127.0.0.1:8000/advisory',
+        destination: `${backendUrl}/advisory`,
       },
       {
         source: '/api/distress',
-        destination: 'http://127.0.0.1:8001/distress/predict',
+        destination: `${backendUrl}/distress/predict`,
       },
       {
         source: '/api/market',
-        destination: 'http://127.0.0.1:8001/market/prices',
+        destination: `${backendUrl}/market/prices`,
       },
     ];
   },
