@@ -1,4 +1,4 @@
-'use client'
+
 
 import React from 'react';
 import { LAND_UNITS } from '../../lib/constants/crops';

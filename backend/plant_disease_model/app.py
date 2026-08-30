@@ -28,12 +28,19 @@ device = torch.device(
 )
 
 
+import os
+
+# --------------------------------------------------
+# Get current directory path
+# --------------------------------------------------
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # --------------------------------------------------
 # Load trained model
 # --------------------------------------------------
 
 checkpoint = torch.load(
-    "best_model.pth",
+    os.path.join(CURRENT_DIR, "best_model.pth"),
     map_location=device
 )
 
@@ -51,7 +58,7 @@ print("Model loaded successfully!")
 # Load class mapping
 # --------------------------------------------------
 
-with open("class_mapping.json", "r") as f:
+with open(os.path.join(CURRENT_DIR, "class_mapping.json"), "r") as f:
     class_mapping = json.load(f)
 
 print("Class mapping loaded successfully!")

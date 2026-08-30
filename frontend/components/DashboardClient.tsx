@@ -234,7 +234,7 @@ export default function DashboardPage() {
             onClick={() => (window.location.href = "/")}
             className="bg-white text-[#003366] border border-black px-3 py-1.5 font-bold flex items-center gap-2 cursor-pointer rounded-sm outline-none hover:bg-gray-200 text-sm"
           >
-            <u>Log Out</u>
+            <u>{t("logOutBtn")}</u>
           </button>
         </div>
       </nav>
@@ -282,11 +282,10 @@ export default function DashboardPage() {
             <AlertTriangle className="w-8 h-8 text-black shrink-0" />
             <div>
               <h3 className="font-bold text-black text-lg m-0 uppercase tracking-wide">
-                Financial Distress Score
+                {t("distressScoreTitle")}
               </h3>
               <p className="text-sm font-medium text-black/80 m-0">
-                Calculate risk assessment based on regional weather & market
-                data
+                {t("distressScoreDesc")}
               </p>
             </div>
           </div>
@@ -294,7 +293,7 @@ export default function DashboardPage() {
             href="/distress-score"
             className="bg-black text-white font-bold px-6 py-2 border border-black uppercase text-sm tracking-wider no-underline"
           >
-            Calculate Score
+            {t("calculateScoreBtn")}
           </Link>
         </div>
 
@@ -304,10 +303,10 @@ export default function DashboardPage() {
             <TrendingUp className="w-8 h-8 text-[#058b2d]" />
             <div>
               <h3 className="font-bold text-[#058b2d] text-lg m-0 uppercase tracking-wide">
-                Live Mandi Prices
+                {t("liveMandiTitle")}
               </h3>
               <p className="text-sm font-medium text-black/80 m-0">
-                Compare agricultural market prices across your state to find the most profitable Mandi.
+                {t("mandiDesc")}
               </p>
             </div>
           </div>
@@ -315,7 +314,7 @@ export default function DashboardPage() {
             href="/market"
             className="bg-[#058b2d] text-white font-bold px-6 py-2 border border-[#058b2d] uppercase text-sm tracking-wider no-underline"
           >
-            Check Prices
+            {t("checkPricesBtn")}
           </Link>
         </div>
 
@@ -365,7 +364,7 @@ export default function DashboardPage() {
                   </div>
                   {crop.sync_status === "pending" ? (
                     <span className="bg-gray-200 text-gray-700 border border-gray-500 px-2.5 py-1 text-xs font-bold animate-pulse">
-                      ⏳ Syncing...
+                      {t("syncingCropStatus")}
                     </span>
                   ) : (
                     <span className="bg-emerald-100 text-emerald-900 border border-emerald-600 px-2.5 py-1 text-xs font-bold">

@@ -1,4 +1,4 @@
-"use client";
+
 
 import React from "react";
 import { IRRIGATION_TYPES, SOIL_TYPES } from "../../lib/constants/crops";

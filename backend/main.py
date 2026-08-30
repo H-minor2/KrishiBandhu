@@ -22,6 +22,13 @@ app.add_middleware(
 app.include_router(advisory_router, tags=["Advisory"])
 app.include_router(distress_router, tags=["Distress"])
 
+# Mount disease detection app
+try:
+    from plant_disease_model.app import app as disease_app
+    app.mount("/disease", disease_app)
+except ImportError as e:
+    print(f"Warning: Could not load disease model: {e}")
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to KrishiBandhu Unified API. Try /docs for the swagger UI."}

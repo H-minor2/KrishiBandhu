@@ -205,7 +205,70 @@ const additions = {
   }
 };
 
-for (const [lang, keys] of Object.entries(additions)) {
+const newKeys = {
+  en: {
+    logOutBtn: 'Log Out',
+    distressScoreTitle: 'Financial Distress Score',
+    distressScoreDesc: 'Calculate risk assessment based on regional weather & market data',
+    calculateScoreBtn: 'Calculate Score',
+    liveMandiTitle: 'Live Mandi Prices',
+    mandiDesc: 'Compare agricultural market prices across your state to find the most profitable Mandi.',
+    checkPricesBtn: 'Check Prices',
+    syncingCropStatus: '⏳ Syncing...'
+  },
+  hi: {
+    logOutBtn: 'लॉग आउट',
+    distressScoreTitle: 'वित्तीय संकट स्कोर',
+    distressScoreDesc: 'क्षेत्रीय मौसम और बाजार डेटा के आधार पर जोखिम मूल्यांकन की गणना करें',
+    calculateScoreBtn: 'स्कोर की गणना करें',
+    liveMandiTitle: 'लाइव मंडी कीमतें',
+    mandiDesc: 'सबसे लाभदायक मंडी खोजने के लिए अपने राज्य भर में कृषि बाजार की कीमतों की तुलना करें।',
+    checkPricesBtn: 'कीमतें जांचें',
+    syncingCropStatus: '⏳ सिंक हो रहा है...'
+  },
+  ta: {
+    logOutBtn: 'வெளியேறு',
+    distressScoreTitle: 'நிதி நெருக்கடி மதிப்பெண்',
+    distressScoreDesc: 'உள்ளூர் வானிலை மற்றும் சந்தை தரவுகளின் அடிப்படையில் அபாய மதிப்பீட்டைக் கணக்கிடுங்கள்',
+    calculateScoreBtn: 'மதிப்பெண்ணைக் கணக்கிடுங்கள்',
+    liveMandiTitle: 'நேரடி மண்டி விலைகள்',
+    mandiDesc: 'மிகவும் லாபகரமான மண்டியைக் கண்டறிய உங்கள் மாநிலம் முழுவதும் உள்ள விவசாய சந்தை விலைகளை ஒப்பிடுக.',
+    checkPricesBtn: 'விலைகளை சரிபார்க்கவும்',
+    syncingCropStatus: '⏳ ஒத்திசைக்கப்படுகிறது...'
+  },
+  te: {
+    logOutBtn: 'లాగ్ అవుట్',
+    distressScoreTitle: 'ఆర్థిక ఒత్తిడి స్కోర్',
+    distressScoreDesc: 'ప్రాంతీయ వాతావరణం మరియు మార్కెట్ డేటా ఆధారంగా ప్రమాద అంచనాను లెక్కించండి',
+    calculateScoreBtn: 'స్కోర్‌ను లెక్కించండి',
+    liveMandiTitle: 'లైవ్ మండి ధరలు',
+    mandiDesc: 'అత్యంత లాభదాయకమైన మండిని కనుగొనడానికి మీ రాష్ట్ర వ్యాప్తంగా ఉన్న వ్యవసాయ మార్కెట్ ధరలను పోల్చండి.',
+    checkPricesBtn: 'ధరలను తనిఖీ చేయండి',
+    syncingCropStatus: '⏳ సమకాలీకరించబడుతోంది...'
+  },
+  mr: {
+    logOutBtn: 'लॉग आउट',
+    distressScoreTitle: 'आर्थिक संकटाचा स्कोअर',
+    distressScoreDesc: 'प्रादेशिक हवामान आणि बाजारातील डेटावर आधारित धोक्याचे मूल्यांकन करा',
+    calculateScoreBtn: 'स्कोअरची गणना करा',
+    liveMandiTitle: 'थेट बाजारभाव',
+    mandiDesc: 'सर्वाधिक फायदेशीर बाजार शोधण्यासाठी राज्यभरातील कृषी बाजारभावांची तुलना करा.',
+    checkPricesBtn: 'किमती तपासा',
+    syncingCropStatus: '⏳ सिंक करत आहे...'
+  },
+  bn: {
+    logOutBtn: 'লগ আউট',
+    distressScoreTitle: 'আর্থিক সংকট স্কোর',
+    distressScoreDesc: 'আঞ্চলিক আবহাওয়া এবং বাজারের ডেটার ভিত্তিতে ঝুঁকি মূল্যায়ন করুন',
+    calculateScoreBtn: 'স্কোর গণনা করুন',
+    liveMandiTitle: 'সরাসরি মান্ডির দাম',
+    mandiDesc: 'সবচেয়ে লাভজনক মান্ডি খুঁজে পেতে রাজ্যজুড়ে কৃষিবাজারের দাম তুলনা করুন।',
+    checkPricesBtn: 'দাম দেখুন',
+    syncingCropStatus: '⏳ সিঙ্ক হচ্ছে...'
+  }
+};
+
+for (const [lang, keys] of Object.entries(newKeys)) {
   const regex = new RegExp(`(${lang}:\\s*{[\\s\\S]*?)(},\n)`, 'g');
   const innerString = Object.entries(keys).map(([k, v]) => `    ${k}: '${v.replace(/'/g, "\\'")}',`).join('\n');
   code = code.replace(regex, `$1${innerString}\n$2`);
