@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Bot, User, Send, ArrowLeft, Wheat, Mountain, CloudRain } from "lucide-react";
+import { Bot, User, Send, ArrowLeft, Wheat, Mountain, CloudRain, Volume2 } from "lucide-react";
 import LanguageSelector from "./auth/LanguageSelector";
 import { useLanguage } from "../lib/context/LanguageContext";
 import "../app/globals.css";
@@ -46,6 +46,22 @@ export default function ChatBotPage() {
     avg_rainfall_7day: null,
   });
   const [numberInput, setNumberInput] = useState("");
+
+  const handleSpeak = (text: string) => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Optionally try to match the app language if supported by the browser
+      if (lang === 'hi') utterance.lang = 'hi-IN';
+      else if (lang === 'ta') utterance.lang = 'ta-IN';
+      else if (lang === 'te') utterance.lang = 'te-IN';
+      else if (lang === 'bn') utterance.lang = 'bn-IN';
+      else utterance.lang = 'en-US';
+
+      window.speechSynthesis.speak(utterance);
+    }
+  };
 
   // Scroll to bottom when messages update
   useEffect(() => {
@@ -342,7 +358,18 @@ export default function ChatBotPage() {
                     : "bg-slate-100 rounded-2xl rounded-bl-sm text-[#003366]"
                 }`}
               >
-                {t(msg.text)}
+                <div className="flex items-start justify-between gap-2">
+                  <span>{t(msg.text)}</span>
+                  {msg.sender === "ai" && (
+                    <button
+                      onClick={() => handleSpeak(t(msg.text))}
+                      className="shrink-0 p-1.5 rounded-full hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-[#058b2d]"
+                      title="Listen"
+                    >
+                      <Volume2 className="w-4 h-4 text-[#058b2d]" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
