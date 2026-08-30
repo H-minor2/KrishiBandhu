@@ -1,5 +1,5 @@
-from water_needed_per_stage import get_water_need
-from soil_retention_factor import SOIL_RETENTION_FACTOR
+from .water_needed_per_stage import get_water_need
+from .soil_retention_factor import SOIL_RETENTION_FACTOR
 
 def calculate_water_deficit(crop, growth_stage, avg_rainfall_7day, soil_type):
     """

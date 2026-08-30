@@ -1,9 +1,9 @@
-from fastapi import FastAPI
+from fastapi import APIRouter
 from pydantic import BaseModel
-from water_deficit import calculate_water_deficit
-from advisory_rules import generate_advisory
+from .water_deficit import calculate_water_deficit
+from .advisory_rules import generate_advisory
 
-app = FastAPI()
+router = APIRouter()
 
 class AdvisoryRequest(BaseModel):
     crop: str
@@ -12,7 +12,7 @@ class AdvisoryRequest(BaseModel):
     pesticide_applied: bool
     soil_type: str
 
-@app.post("/advisory")
+@router.post("/advisory")
 def get_advisory(request: AdvisoryRequest):
     deficit = calculate_water_deficit(
         crop=request.crop,

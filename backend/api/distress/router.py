@@ -1,7 +1,5 @@
-
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 
 from .config import APP_NAME
 from .db import clear_cache, init_db
@@ -9,26 +7,15 @@ from .models import DistressRequest, DistressResponse
 from .services import build_distress_result
 from .market_exporter import get_all_market_prices
 
-app = FastAPI(
-    title=APP_NAME,
-    description="Live farmer distress decision-support API using Open-Meteo and AGMARKNET.",
-    version="2.0.0",
-)
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
+router = APIRouter()
 
 
-@app.on_event("startup")
+@router.on_event("startup")
 def startup():
     init_db()
 
 
-@app.get("/")
-def root():
-    return FileResponse("static/index.html")
-
-
-@app.get("/health")
+@router.get("/health")
 def health():
     return {
         "status": "ok",
@@ -38,13 +25,13 @@ def health():
     }
 
 
-@app.post("/admin/cache/clear")
+@router.post("/admin/cache/clear")
 def cache_clear():
     clear_cache()
     return {"status": "cache_cleared"}
 
 
-@app.post("/distress/predict", response_model=DistressResponse)
+@router.post("/distress/predict", response_model=DistressResponse)
 def predict_distress(request: DistressRequest):
     try:
         return build_distress_result(request)
@@ -55,7 +42,7 @@ def predict_distress(request: DistressRequest):
         ) from exc
 
 
-@app.get("/market/prices")
+@router.get("/market/prices")
 def market_prices(state: str, commodity: str):
     result = get_all_market_prices(state, commodity)
     if result.get("error"):
