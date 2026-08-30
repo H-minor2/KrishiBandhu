@@ -154,21 +154,28 @@ def get_market(state, crop, market_name=""):
     today = date.today()
     current_year, current_month = today.year, today.month
 
-    current_raw = _month_data(
-        state_id, commodity_id, current_year, current_month
-    )
-    current_records = _flatten(
-        current_raw, state, commodity_name, commodity_id,
-        current_year, current_month
-    )
+    current_records = []
+    try:
+        current_raw = _month_data(
+            state_id, commodity_id, current_year, current_month
+        )
+        current_records = _flatten(
+            current_raw, state, commodity_name, commodity_id,
+            current_year, current_month
+        )
+    except requests.exceptions.RequestException as e:
+        pass
 
     history_records = []
     for offset in range(1, MARKET_HISTORY_MONTHS + 1):
         y, m = _month_shift(current_year, current_month, -offset)
-        raw = _month_data(state_id, commodity_id, y, m)
-        history_records.extend(
-            _flatten(raw, state, commodity_name, commodity_id, y, m)
-        )
+        try:
+            raw = _month_data(state_id, commodity_id, y, m)
+            history_records.extend(
+                _flatten(raw, state, commodity_name, commodity_id, y, m)
+            )
+        except requests.exceptions.RequestException:
+            pass
 
     selected = [
         r for r in current_records

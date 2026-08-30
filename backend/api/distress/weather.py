@@ -192,9 +192,15 @@ def get_weather(lat, lon):
     if cached is not None:
         return cached
 
-    forecast = _forecast(lat, lon)
-    baseline = _historical_baseline(lat, lon)
-    score, explanation, quality, data = _weather_score(forecast, baseline)
+    try:
+        forecast = _forecast(lat, lon)
+        baseline = _historical_baseline(lat, lon)
+        score, explanation, quality, data = _weather_score(forecast, baseline)
+    except requests.exceptions.RequestException as e:
+        score = 0.0
+        explanation = f"Weather data temporarily unavailable (API Limit Reached or Network Error)."
+        quality = "POOR"
+        data = {}
 
     result = {
         "score": score,
