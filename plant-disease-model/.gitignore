@@ -1,0 +1,13 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Dataset - not needed for inference/deployment
+data/
+
+# OS files
+.DS_Store
+Thumbs.db
