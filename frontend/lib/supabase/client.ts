@@ -291,6 +291,12 @@ export async function addNewCropToSupabase(cropData: Partial<FarmerCropData>): P
       }
     }
 
+    if (typeof window !== 'undefined') {
+      const currentCrops = getStoredFarmerData().crops;
+      currentCrops.unshift(finalCrop); // Add to beginning of array
+      localStorage.setItem(MOCK_STORAGE_KEY_CROPS, JSON.stringify(currentCrops));
+    }
+
     return { success: true, crop: finalCrop };
   } catch (err: any) {
     console.warn('Crop insert failed:', err);
